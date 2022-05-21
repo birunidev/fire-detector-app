@@ -1,24 +1,77 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import logo from "./logo.svg";
+import useFirebaseMessaging from "@useweb/use-firebase-messaging";
+import { getDatabase, child, ref, get, onValue, set } from "firebase/database";
+import "./App.css";
+import { firebaseApp } from "./Firebase";
+
+const database = getDatabase(firebaseApp);
 
 function App() {
+  const [btnStatus, setBtnStatus] = useState(0);
+
+  const firebaseMessaging = useFirebaseMessaging({
+    onMessage: (message) => {
+      console.log(`Received foreground message`, message);
+    },
+  });
+
+  useEffect(() => {
+    const onOffRef = ref(database, "turn_on_off/");
+    onValue(onOffRef, (snapshot) => {
+      const data = snapshot.val();
+      setBtnStatus(data);
+      console.log(data);
+    });
+  });
+
+  useEffect(() => {
+    firebaseMessaging.init();
+  }, []);
+
+  const fetchNotif = async () => {
+    try {
+      const res = await fetch("https://fire-detector-server.herokuapp.com/");
+      const data = await res.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleBtnClick = () => {
+    const onOffRef = ref(database, "turn_on_off/");
+    if (btnStatus == 0) {
+      setBtnStatus(1);
+      set(onOffRef, 1).then((res) => alert("System has been turned on"));
+    } else if (btnStatus == 1) {
+      setBtnStatus(0);
+      set(onOffRef, 0).then((res) => alert("System has been turned off"));
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchNotif();
+    }, 600);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
+    <div className="app">
+      <div className="header">
+        <h1>Fire Detector App</h1>
+      </div>
+      <div className="container">
+        <h3 className="title">On/Off Switch</h3>
+        <p className="device-status">
+          Device Status: {btnStatus === 0 ? "OFF" : "ON"}
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <button onClick={handleBtnClick} className="btn-status">
+          {btnStatus === 0 ? "ON" : "OFF"}
+        </button>
+        <p className="fire-status">Fire Status: No Fire Detected</p>
+      </div>
     </div>
   );
 }
