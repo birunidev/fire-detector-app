@@ -8,6 +8,7 @@ const database = getDatabase(firebaseApp);
 
 function App() {
   const [btnStatus, setBtnStatus] = useState(0);
+  const [fcmToken, setFcmToken] = useState("");
 
   const firebaseMessaging = useFirebaseMessaging({
     onMessage: (message) => {
@@ -26,11 +27,12 @@ function App() {
 
   useEffect(() => {
     firebaseMessaging.init();
+    setFcmToken(firebaseMessaging.fcmRegistrationToken);
   }, [firebaseMessaging]);
 
-  const fetchNotif = async () => {
+  const fetchNotif = async (token) => {
     try {
-      const res = await fetch("https://fire-detector-server.herokuapp.com/");
+      const res = await fetch("http://localhost:4000/" + token);
       const data = await res.json();
       console.log(data);
     } catch (error) {
@@ -51,10 +53,10 @@ function App() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchNotif();
-    }, 600);
+      fetchNotif(fcmToken);
+    }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fcmToken]);
 
   return (
     <div className="app">
