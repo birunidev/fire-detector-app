@@ -33,10 +33,7 @@ function App() {
   const fetchNotif = async (token) => {
     try {
       const res = await fetch(
-        "https://fire-detector-server.herokuapp.com/" + token,
-        {
-          mode: "no-cors",
-        }
+        "https://fire-detector-server.herokuapp.com/" + token
       );
       const data = await res.json();
       console.log(data);
