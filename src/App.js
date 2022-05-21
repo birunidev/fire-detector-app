@@ -8,12 +8,21 @@ const database = getDatabase(firebaseApp);
 
 function App() {
   const [btnStatus, setBtnStatus] = useState(0);
+  const [systemStatus, setSystemStatus] = useState("");
   const [fcmToken, setFcmToken] = useState("");
 
   const firebaseMessaging = useFirebaseMessaging({
     onMessage: (message) => {
       console.log(`Received foreground message`, message);
     },
+  });
+
+  useEffect(() => {
+    const statusRef = ref(database, "system_status/");
+    onValue(statusRef, (snapshot) => {
+      const data = snapshot.val();
+      setSystemStatus(data);
+    });
   });
 
   useEffect(() => {
@@ -73,7 +82,7 @@ function App() {
         <button onClick={handleBtnClick} className="btn-status">
           {btnStatus === 0 ? "ON" : "OFF"}
         </button>
-        <p className="fire-status">Fire Status: No Fire Detected</p>
+        <p className="fire-status">Fire Status: {systemStatus}</p>
         <p>{fcmToken}</p>
       </div>
     </div>
