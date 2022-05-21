@@ -74,6 +74,7 @@ function App() {
           {btnStatus === 0 ? "ON" : "OFF"}
         </button>
         <p className="fire-status">Fire Status: No Fire Detected</p>
+        <p>{fcmToken}</p>
       </div>
     </div>
   );
