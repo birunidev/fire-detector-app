@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
 import useFirebaseMessaging from "@useweb/use-firebase-messaging";
-import { getDatabase, child, ref, get, onValue, set } from "firebase/database";
+import { getDatabase, ref, onValue, set } from "firebase/database";
 import "./App.css";
 import { firebaseApp } from "./Firebase";
 
@@ -27,7 +26,7 @@ function App() {
 
   useEffect(() => {
     firebaseMessaging.init();
-  }, []);
+  }, [firebaseMessaging]);
 
   const fetchNotif = async () => {
     try {
@@ -41,10 +40,10 @@ function App() {
 
   const handleBtnClick = () => {
     const onOffRef = ref(database, "turn_on_off/");
-    if (btnStatus == 0) {
+    if (btnStatus === 0) {
       setBtnStatus(1);
       set(onOffRef, 1).then((res) => alert("System has been turned on"));
-    } else if (btnStatus == 1) {
+    } else if (btnStatus === 1) {
       setBtnStatus(0);
       set(onOffRef, 0).then((res) => alert("System has been turned off"));
     }
